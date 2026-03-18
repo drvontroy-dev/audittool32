@@ -1,101 +1,60 @@
-// Set Netlify function timeout to max allowed
-exports.config = {
-  maxDuration: 60
-};
-
 exports.handler = async (event) => {
-  const headers = {
+  var h = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Content-Type": "application/json",
+    "Content-Type": "application/json"
   };
 
-  if (event.httpMethod === "OPTIONS") {
-    return { statusCode: 200, headers, body: "" };
-  }
+  if (event.httpMethod === "OPTIONS") return { statusCode: 200, headers: h, body: "" };
+  if (event.httpMethod !== "POST") return { statusCode: 405, headers: h, body: JSON.stringify({ error: "Method not allowed" }) };
 
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, headers, body: JSON.stringify({ error: "Method not allowed" }) };
-  }
-
-  const API_KEY = process.env.ANTHROPIC_API_KEY;
-  if (!API_KEY) {
-    return { statusCode: 500, headers, body: JSON.stringify({ error: "API key not configured." }) };
-  }
+  var API_KEY = process.env.ANTHROPIC_API_KEY;
+  if (!API_KEY) return { statusCode: 500, headers: h, body: JSON.stringify({ error: "API key not set." }) };
 
   try {
-    const { url, name, industry } = JSON.parse(event.body);
-    if (!url || !name || !industry) {
-      return { statusCode: 400, headers, body: JSON.stringify({ error: "Missing fields." }) };
-    }
+    var body = JSON.parse(event.body);
+    var url = body.url, name = body.name, industry = body.industry;
+    if (!url || !name || !industry) return { statusCode: 400, headers: h, body: JSON.stringify({ error: "Missing fields." }) };
 
-    const prompt = `You are an expert website auditor specializing in SEO, AEO (Answer Engine Optimization), and GEO (Generative Engine Optimization).
+    var prompt = 'Audit ' + url + ' for "' + name + '" (' + industry + '). Respond with ONLY valid JSON, nothing else:\n\n{"overall_score":0,"summary":"","seo":{"score":0,"grade":"F","findings":[{"check":"Meta Title","status":"fail","detail":"","fix":""},{"check":"Meta Description","status":"fail","detail":"","fix":""},{"check":"Heading Structure","status":"fail","detail":"","fix":""},{"check":"Mobile Optimization","status":"fail","detail":"","fix":""},{"check":"HTTPS/SSL","status":"fail","detail":"","fix":""},{"check":"Page Speed","status":"fail","detail":"","fix":""},{"check":"Internal Linking","status":"fail","detail":"","fix":""},{"check":"Image Alt Text","status":"fail","detail":"","fix":""},{"check":"XML Sitemap","status":"fail","detail":"","fix":""},{"check":"Canonical URLs","status":"fail","detail":"","fix":""}]},"aeo":{"score":0,"grade":"F","findings":[{"check":"FAQ Schema","status":"fail","detail":"","fix":""},{"check":"Question Headings","status":"fail","detail":"","fix":""},{"check":"Snippet Readiness","status":"fail","detail":"","fix":""},{"check":"Voice Search","status":"fail","detail":"","fix":""},{"check":"Answer Formatting","status":"fail","detail":"","fix":""},{"check":"HowTo Schema","status":"fail","detail":"","fix":""},{"check":"Knowledge Panel","status":"fail","detail":"","fix":""},{"check":"Answer Paragraphs","status":"fail","detail":"","fix":""}]},"geo":{"score":0,"grade":"F","findings":[{"check":"Structured Data","status":"fail","detail":"","fix":""},{"check":"E-E-A-T Signals","status":"fail","detail":"","fix":""},{"check":"Content Citability","status":"fail","detail":"","fix":""},{"check":"AI Crawler Access","status":"fail","detail":"","fix":""},{"check":"Author Expertise","status":"fail","detail":"","fix":""},{"check":"Content Freshness","status":"fail","detail":"","fix":""},{"check":"Data Citations","status":"fail","detail":"","fix":""},{"check":"LocalBusiness Schema","status":"fail","detail":"","fix":""},{"check":"AI Visibility","status":"fail","detail":"","fix":""},{"check":"Multi-Platform","status":"fail","detail":"","fix":""}]},"priority_fixes":[{"rank":1,"action":"","impact":"high","effort":"low","category":"SEO"},{"rank":2,"action":"","impact":"high","effort":"low","category":"GEO"},{"rank":3,"action":"","impact":"high","effort":"medium","category":"AEO"},{"rank":4,"action":"","impact":"medium","effort":"medium","category":"SEO"},{"rank":5,"action":"","impact":"medium","effort":"high","category":"GEO"}],"competitor_note":""}\n\nFill ALL values with real findings for this business. Status: pass/fail/warning. Scores 0-100. Most small biz sites score 20-50. Be honest and specific.';
 
-Analyze the website at ${url} for the business "${name}" in the "${industry}" industry.
-
-Based on your knowledge of what a typical ${industry} small business website looks like, common issues in this industry, and best practices for SEO/AEO/GEO, produce a comprehensive audit.
-
-Consider these factors:
-- Most small business websites have basic SEO at best
-- Almost none have AEO optimization (FAQ schema, question-based headings, featured snippet formatting)
-- Almost none have GEO optimization (AI citability, structured data for LLMs, E-E-A-T signals)
-- Schema markup is missing on 31% of all websites
-- 65% of searches now end with zero clicks
-- AI Overviews appear on 13%+ of Google queries
-
-RESPOND WITH ONLY A VALID JSON OBJECT. No other text before or after. No markdown. No backticks. No explanation.
-
-{"overall_score":0,"summary":"2-3 sentence summary here","seo":{"score":0,"grade":"F","findings":[{"check":"Meta Title","status":"fail","detail":"finding here","fix":"recommendation here"},{"check":"Meta Description","status":"fail","detail":"finding here","fix":"recommendation here"},{"check":"Heading Structure","status":"fail","detail":"finding here","fix":"recommendation here"},{"check":"Mobile Optimization","status":"warning","detail":"finding here","fix":"recommendation here"},{"check":"HTTPS/SSL","status":"pass","detail":"finding here","fix":"recommendation here"},{"check":"Page Speed","status":"fail","detail":"finding here","fix":"recommendation here"},{"check":"Internal Linking","status":"fail","detail":"finding here","fix":"recommendation here"},{"check":"Image Alt Text","status":"fail","detail":"finding here","fix":"recommendation here"},{"check":"XML Sitemap","status":"fail","detail":"finding here","fix":"recommendation here"},{"check":"Canonical URLs","status":"warning","detail":"finding here","fix":"recommendation here"}]},"aeo":{"score":0,"grade":"F","findings":[{"check":"FAQ Schema Markup","status":"fail","detail":"finding here","fix":"recommendation here"},{"check":"Question-Based Headings","status":"fail","detail":"finding here","fix":"recommendation here"},{"check":"Featured Snippet Readiness","status":"fail","detail":"finding here","fix":"recommendation here"},{"check":"Voice Search Optimization","status":"fail","detail":"finding here","fix":"recommendation here"},{"check":"Direct Answer Formatting","status":"fail","detail":"finding here","fix":"recommendation here"},{"check":"HowTo Schema","status":"fail","detail":"finding here","fix":"recommendation here"},{"check":"Knowledge Panel Signals","status":"fail","detail":"finding here","fix":"recommendation here"},{"check":"Concise Answer Paragraphs","status":"fail","detail":"finding here","fix":"recommendation here"}]},"geo":{"score":0,"grade":"F","findings":[{"check":"Structured Data","status":"fail","detail":"finding here","fix":"recommendation here"},{"check":"E-E-A-T Signals","status":"fail","detail":"finding here","fix":"recommendation here"},{"check":"Content Citability","status":"fail","detail":"finding here","fix":"recommendation here"},{"check":"AI Crawler Access","status":"fail","detail":"finding here","fix":"recommendation here"},{"check":"Author Expertise","status":"fail","detail":"finding here","fix":"recommendation here"},{"check":"Content Freshness","status":"fail","detail":"finding here","fix":"recommendation here"},{"check":"Data Citations","status":"fail","detail":"finding here","fix":"recommendation here"},{"check":"LocalBusiness Schema","status":"fail","detail":"finding here","fix":"recommendation here"},{"check":"AI Platform Visibility","status":"fail","detail":"finding here","fix":"recommendation here"},{"check":"Multi-Platform Consistency","status":"fail","detail":"finding here","fix":"recommendation here"}]},"priority_fixes":[{"rank":1,"action":"action here","impact":"high","effort":"low","category":"SEO"},{"rank":2,"action":"action here","impact":"high","effort":"low","category":"GEO"},{"rank":3,"action":"action here","impact":"high","effort":"medium","category":"AEO"},{"rank":4,"action":"action here","impact":"medium","effort":"medium","category":"SEO"},{"rank":5,"action":"action here","impact":"medium","effort":"high","category":"GEO"}],"competitor_note":"note here"}
-
-Replace ALL placeholder text with real, specific, actionable findings for this exact business and industry. Status must be "pass", "fail", or "warning". Scores 0-100. Grade A/B/C/D/F. Be brutally honest - most small business sites score 20-50 overall.`;
-
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    var res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "x-api-key": API_KEY,
-        "anthropic-version": "2023-06-01",
+        "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 6000,
-        messages: [{ role: "user", content: prompt }],
-      }),
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 4000,
+        messages: [{ role: "user", content: prompt }]
+      })
     });
 
-    if (!response.ok) {
-      const err = await response.text();
-      return { statusCode: 500, headers, body: JSON.stringify({ error: "API error " + response.status + ": " + err.substring(0, 200) }) };
+    if (!res.ok) {
+      var errText = await res.text();
+      return { statusCode: 200, headers: h, body: JSON.stringify({ error: "API error " + res.status + ": " + errText.substring(0, 150) }) };
     }
 
-    const result = await response.json();
-    const text = (result.content || [])
-      .filter(function(b) { return b.type === "text"; })
-      .map(function(b) { return b.text; })
-      .join("\n");
-
-    var cleaned = text.replace(/```json/g, "").replace(/```/g, "").trim();
-    var match = cleaned.match(/\{[\s\S]*\}/);
-
-    if (!match) {
-      return { statusCode: 200, headers, body: JSON.stringify({ error: "No JSON found in response. Try again.", debug: cleaned.substring(0, 200) }) };
+    var data = await res.json();
+    var text = "";
+    for (var i = 0; i < (data.content || []).length; i++) {
+      if (data.content[i].type === "text") text += data.content[i].text;
     }
 
-    var parsed;
-    try {
-      parsed = JSON.parse(match[0]);
-    } catch (e) {
-      return { statusCode: 200, headers, body: JSON.stringify({ error: "JSON parse error: " + e.message, debug: match[0].substring(0, 200) }) };
-    }
+    text = text.replace(/```json/g, "").replace(/```/g, "").trim();
+    var match = text.match(/\{[\s\S]*\}/);
+    if (!match) return { statusCode: 200, headers: h, body: JSON.stringify({ error: "No JSON in response. Try again." }) };
 
-    if (parsed && parsed.overall_score !== undefined) {
-      return { statusCode: 200, headers, body: JSON.stringify(parsed) };
+    var parsed = JSON.parse(match[0]);
+    if (parsed.overall_score !== undefined) {
+      return { statusCode: 200, headers: h, body: JSON.stringify(parsed) };
     }
-
-    return { statusCode: 200, headers, body: JSON.stringify({ error: "Missing overall_score in response. Try again." }) };
+    return { statusCode: 200, headers: h, body: JSON.stringify({ error: "Invalid format. Try again." }) };
 
   } catch (err) {
-    return { statusCode: 500, headers, body: JSON.stringify({ error: "Server error: " + err.message }) };
+    return { statusCode: 200, headers: h, body: JSON.stringify({ error: "Error: " + err.message }) };
   }
 };
