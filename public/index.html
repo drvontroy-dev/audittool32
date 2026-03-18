@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Search Visibility Audit | Powered by STAR Culture</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0a0b0f;--card:#12131a;--card-alt:#161822;--border:#1e2030;--text:#e8e9ed;--muted:#8b8fa3;--seo:#3b82f6;--aeo:#a855f7;--geo:#f97316;--danger:#ef4444;--success:#22c55e;--gold:#fbbf24;--warn:#eab308}
+    body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+    @keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    input,select,button{font-family:'Outfit',sans-serif}input::placeholder{color:rgba(139,143,163,.5)}
+    .ctn{max-width:900px;margin:0 auto;padding:0 20px 60px}
+    .crd{background:var(--card);border-radius:18px;padding:28px 24px;border:1px solid var(--border);margin-bottom:16px}
+    .lbl{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;display:block;margin-bottom:6px}
+    .inp{width:100%;padding:14px 16px;border-radius:10px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:15px;font-weight:500;outline:none;transition:border-color .2s}
+    .inp:focus{border-color:var(--seo)}
+    .btn1{width:100%;margin-top:20px;padding:16px 0;border-radius:12px;border:none;background:linear-gradient(135deg,#3b82f6,#a855f7,#f97316);background-size:200% auto;color:#fff;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s}
+    .btn1:hover{background-position:right center}.btn1:disabled{opacity:.6;cursor:not-allowed;background:var(--border)}
+    .err{margin-top:12px;padding:10px 14px;border-radius:8px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:var(--danger);font-size:13px}
+    .spn{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--seo);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 20px}
+    .shbar{height:4px;border-radius:2px;background:var(--border);overflow:hidden;margin-top:20px}
+    .shfill{height:100%;width:100%;border-radius:2px;background:linear-gradient(90deg,#3b82f6,#a855f7,#f97316,#3b82f6);background-size:200% 100%;animation:shimmer 1.5s linear infinite}
+    .sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;text-align:center}
+    .tabs{display:flex;gap:4px;margin-bottom:16px;background:var(--card);border-radius:12px;padding:4px;border:1px solid var(--border)}
+    .tbtn{flex:1;padding:10px 0;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;color:var(--muted);background:transparent}
+    .frow{border-radius:10px;transition:all .2s;cursor:pointer}.frow:hover{background:var(--card-alt)}
+    .sbdg{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.5px;flex-shrink:0}
+    .pitm{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;background:var(--bg);border:1px solid var(--border)}
+    .gtxt{font-weight:700;background:linear-gradient(135deg,#3b82f6,#a855f7,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    @media(max-width:640px){.sgrid{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr!important}.tabs{flex-wrap:wrap}}
+  </style>
+</head>
+<body>
+  <div id="root"><div style="text-align:center;padding:60px 20px;color:#8b8fa3">Loading...</div></div>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script type="text/babel" data-presets="react">
+    var useState = React.useState, useEffect = React.useEffect;
+    var IND = ["Restaurant / Food Service","Home Services (HVAC, Plumbing, Roofing)","Retail / Boutique","Health and Wellness (Dentist, Chiro, Med Spa)","Auto Services","Professional Services (Legal, Accounting, Real Estate)","Fitness / Gym","Salon / Barbershop","Pet Services","Other"];
+    var STEPS = ["Locating website...","Scanning site structure...","Checking schema markup...","Analyzing answer-readiness...","Testing AI crawler access...","Evaluating E-E-A-T signals...","Checking AI visibility...","Scoring SEO, AEO, GEO...","Compiling priority fixes...","Generating report..."];
+    function sc(s){return s>=80?"var(--success)":s>=60?"var(--gold)":s>=40?"var(--warn)":"var(--danger)"}
+    function sh(s){return s>=80?"#22c55e":s>=60?"#fbbf24":s>=40?"#eab308":"#ef4444"}
+    function cc(c){return c==="SEO"?"#3b82f6":c==="AEO"?"#a855f7":"#f97316"}
+    function cnt(a,s){return(a||[]).filter(function(f){return f.status===s}).length}
+
+    function Ring(p){
+      var sz=p.size||110,sw=8,r=(sz-sw)/2,ci=2*Math.PI*r;
+      var c=p.color||sc(p.score);
+      var st=useState(ci); var off=st[0],setOff=st[1];
+      useEffect(function(){var t=setTimeout(function(){setOff(ci-(p.score/100)*ci)},200);return function(){clearTimeout(t)}},[p.score]);
+      return(<div style={{display:"flex",flexDirection:"column",alignItems:"center"}}>
+        <svg width={sz} height={sz} style={{transform:"rotate(-90deg)"}}><circle cx={sz/2} cy={sz/2} r={r} fill="none" stroke="var(--border)" strokeWidth={sw}/><circle cx={sz/2} cy={sz/2} r={r} fill="none" stroke={c} strokeWidth={sw} strokeDasharray={ci} strokeDashoffset={off} strokeLinecap="round" style={{transition:"stroke-dashoffset 1.5s cubic-bezier(.22,1,.36,1)"}}/></svg>
+        <div style={{marginTop:-(sz/2)-18,position:"relative"}}><div style={{fontSize:sz/3.2,fontWeight:800,color:c}}>{p.score}</div><div style={{fontSize:10,color:"var(--muted)",marginTop:-2}}>/100</div></div>
+        {p.label&&<div style={{marginTop:(sz/2)-28,fontSize:12,fontWeight:700,color:"var(--muted)",letterSpacing:1.5,textTransform:"uppercase"}}>{p.label}</div>}
+      </div>)
+    }
+
+    function Badge(p){
+      var m={pass:{bg:"rgba(34,197,94,.13)",c:"var(--success)",t:"PASS",i:"\u2713"},fail:{bg:"rgba(239,68,68,.13)",c:"var(--danger)",t:"FAIL",i:"\u2717"},warning:{bg:"rgba(234,179,8,.13)",c:"var(--warn)",t:"WARN",i:"!"}};
+      var s=m[p.status]||m.fail;
+      return <span className="sbdg" style={{background:s.bg,color:s.c}}>{s.i} {s.t}</span>
+    }
+
+    function Findings(p){
+      var fs=p.findings||[],col=p.col;
+      var st=useState(null);var exp=st[0],setExp=st[1];
+      return(<div style={{display:"flex",flexDirection:"column",gap:4}}>
+        {fs.map(function(f,i){return(
+          <div key={i} className="frow" style={{background:exp===i?"var(--card-alt)":"transparent",border:"1px solid "+(exp===i?col+"33":"transparent")}}>
+            <div style={{display:"flex",alignItems:"center",gap:12,padding:"10px 14px"}} onClick={function(){setExp(exp===i?null:i)}}>
+              <Badge status={f.status}/><span style={{flex:1,fontSize:13,fontWeight:600,color:"var(--text)"}}>{f.check}</span>
+              <span style={{fontSize:14,color:"var(--muted)",transform:exp===i?"rotate(180deg)":"rotate(0)",transition:"transform .2s"}}>{"\u25BE"}</span>
+            </div>
+            {exp===i&&(<div style={{padding:"0 14px 14px",animation:"fadeIn .2s ease"}}>
+              <div style={{fontSize:12,color:"var(--muted)",lineHeight:1.6,marginBottom:8}}><strong style={{color:"var(--text)"}}>Finding:</strong> {f.detail}</div>
+              <div style={{fontSize:12,lineHeight:1.6,padding:"10px 12px",borderRadius:8,background:f.status==="pass"?"rgba(34,197,94,.04)":"rgba(139,143,163,.04)",borderLeft:"3px solid "+(f.status==="pass"?"var(--success)":col)}}>
+                <strong style={{color:f.status==="pass"?"var(--success)":col}}>{f.status==="pass"?"\u2713 Good:":"\u2192 Fix:"}</strong>{" "}<span style={{color:"var(--text)"}}>{f.fix}</span>
+              </div>
+            </div>)}
+          </div>
+        )})}
+      </div>)
+    }
+
+    function mkReport(data,url,biz,ind){
+      var d=new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
+      function gg(s){return s>=90?"A":s>=80?"B+":s>=70?"B":s>=60?"C+":s>=50?"C":s>=40?"D":"F"}
+      function si(s){return s==="pass"?"PASS":s==="warning"?"WARN":"FAIL"}
+      function scl(s){return s==="pass"?"#22c55e":s==="warning"?"#eab308":"#ef4444"}
+      function pc(a){return(a||[]).filter(function(x){return x.status==="pass"}).length}
+      function fc(a){return(a||[]).filter(function(x){return x.status==="fail"}).length}
+      function rows(fs){return(fs||[]).map(function(f){return"<tr><td style='padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px'><span style='color:"+scl(f.status)+";font-weight:700'>"+si(f.status)+"</span></td><td style='padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;font-weight:600'>"+f.check+"</td><td style='padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;color:#6b7280'>"+f.detail+"</td><td style='padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px'>"+f.fix+"</td></tr>"}).join("")}
+      function sect(t,c,s,sub,fs){return"<div style='padding:28px 40px'><div style='font-size:20px;font-weight:700;margin-bottom:4px'><span style='color:"+c+"'>&#9679;</span> "+t+" - "+s+"/100</div>"+(sub?"<div style='font-size:13px;color:#6b7280;margin-bottom:12px'>"+sub+"</div>":"")+"<div style='display:flex;gap:8px;margin-bottom:16px'><span style='padding:4px 12px;border-radius:6px;background:#dcfce7;color:#166534;font-size:12px;font-weight:600'>"+pc(fs)+" passed</span><span style='padding:4px 12px;border-radius:6px;background:#fef2f2;color:#991b1b;font-size:12px;font-weight:600'>"+fc(fs)+" failed</span></div><table style='width:100%;border-collapse:collapse'><tr><th style='text-align:left;padding:10px 12px;background:#f9fafb;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#6b7280;border-bottom:2px solid #e5e7eb;width:80px'>Status</th><th style='text-align:left;padding:10px 12px;background:#f9fafb;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#6b7280;border-bottom:2px solid #e5e7eb;width:160px'>Check</th><th style='text-align:left;padding:10px 12px;background:#f9fafb;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#6b7280;border-bottom:2px solid #e5e7eb'>Finding</th><th style='text-align:left;padding:10px 12px;background:#f9fafb;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#6b7280;border-bottom:2px solid #e5e7eb'>Recommendation</th></tr>"+rows(fs)+"</table></div><div style='page-break-before:always'></div>"}
+      var pr=(data.priority_fixes||[]).map(function(f){return"<tr><td style='padding:10px 12px;border-bottom:1px solid #e5e7eb;font-weight:700;font-size:16px'>"+f.rank+"</td><td style='padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:13px'>"+f.action+"</td><td style='padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;color:"+(f.impact==="high"?"#ef4444":"#eab308")+";font-weight:700;text-transform:uppercase'>"+f.impact+"</td><td style='padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-transform:capitalize'>"+f.effort+"</td><td style='padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:11px;font-weight:700;color:"+cc(f.category)+"'>"+f.category+"</td></tr>"}).join("");
+      return"<!DOCTYPE html><html><head><meta charset='utf-8'><title>AI Audit - "+biz+"</title><link href='https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap' rel='stylesheet'><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Outfit',sans-serif;color:#111827;background:#fff}@page{size:letter;margin:.6in}@media print{.np{display:none!important}}.pb{position:fixed;bottom:24px;right:24px;padding:14px 28px;background:#0f172a;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:999}</style></head><body><button class='pb np' onclick='window.print()'>Print / Save as PDF</button><div style='background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;padding:40px'><p style='font-size:11px;letter-spacing:3px;text-transform:uppercase;opacity:.5;margin-bottom:8px'>AI SEARCH VISIBILITY AUDIT</p><h1 style='font-size:28px;font-weight:800;margin-bottom:4px'>"+biz+"</h1><p style='font-size:14px;opacity:.7'>"+url+"</p><div style='display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:20px'><div style='background:rgba(255,255,255,.08);padding:12px 16px;border-radius:8px'><div style='font-size:10px;text-transform:uppercase;letter-spacing:1.5px;opacity:.5'>Industry</div><div style='font-size:15px;font-weight:600;margin-top:2px'>"+ind+"</div></div><div style='background:rgba(255,255,255,.08);padding:12px 16px;border-radius:8px'><div style='font-size:10px;text-transform:uppercase;letter-spacing:1.5px;opacity:.5'>Date</div><div style='font-size:15px;font-weight:600;margin-top:2px'>"+d+"</div></div><div style='background:rgba(255,255,255,.08);padding:12px 16px;border-radius:8px'><div style='font-size:10px;text-transform:uppercase;letter-spacing:1.5px;opacity:.5'>Grade</div><div style='font-size:15px;font-weight:600;margin-top:2px;color:"+sh(data.overall_score)+"'>"+gg(data.overall_score)+" ("+data.overall_score+"/100)</div></div></div></div><div style='display:flex;justify-content:space-around;padding:32px 20px;border-bottom:1px solid #e5e7eb'><div style='text-align:center'><div style='font-size:48px;font-weight:800;color:"+sh(data.overall_score)+"'>"+data.overall_score+"</div><div style='font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#6b7280;margin-top:4px'>Overall</div></div><div style='text-align:center'><div style='font-size:48px;font-weight:800;color:"+sh(data.seo.score)+"'>"+data.seo.score+"</div><div style='font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#6b7280;margin-top:4px'>SEO</div></div><div style='text-align:center'><div style='font-size:48px;font-weight:800;color:"+sh(data.aeo.score)+"'>"+data.aeo.score+"</div><div style='font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#6b7280;margin-top:4px'>AEO</div></div><div style='text-align:center'><div style='font-size:48px;font-weight:800;color:"+sh(data.geo.score)+"'>"+data.geo.score+"</div><div style='font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#6b7280;margin-top:4px'>GEO</div></div></div><div style='padding:28px 40px'><p style='font-size:14px;line-height:1.7;color:#374151;padding:16px 20px;background:#f0f9ff;border-left:4px solid #3b82f6;border-radius:0 8px 8px 0'>"+data.summary+"</p></div><div style='padding:0 40px 28px'><div style='font-size:20px;font-weight:700;color:#ef4444;margin-bottom:4px'>Priority Fixes</div><table style='width:100%;border-collapse:collapse'><tr><th style='text-align:left;padding:10px 12px;background:#f9fafb;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#6b7280;border-bottom:2px solid #e5e7eb;width:40px'>#</th><th style='text-align:left;padding:10px 12px;background:#f9fafb;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#6b7280;border-bottom:2px solid #e5e7eb'>Action</th><th style='text-align:left;padding:10px 12px;background:#f9fafb;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#6b7280;border-bottom:2px solid #e5e7eb;width:80px'>Impact</th><th style='text-align:left;padding:10px 12px;background:#f9fafb;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#6b7280;border-bottom:2px solid #e5e7eb;width:80px'>Effort</th><th style='text-align:left;padding:10px 12px;background:#f9fafb;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#6b7280;border-bottom:2px solid #e5e7eb;width:70px'>Area</th></tr>"+pr+"</table></div><div style='page-break-before:always'></div>"+sect("SEO Analysis","#3b82f6",data.seo.score,"",data.seo.findings)+sect("AEO Analysis","#a855f7",data.aeo.score,"Featured snippets, voice search, AI Overviews",data.aeo.findings)+sect("GEO Analysis","#f97316",data.geo.score,"ChatGPT, Perplexity, Claude, Gemini visibility",data.geo.findings)+(data.competitor_note?"<div style='padding:0 40px 20px'><div style='padding:16px 20px;background:#fff7ed;border-left:4px solid #f97316;border-radius:0 8px 8px 0;font-size:13px;line-height:1.6'><strong style='color:#c2410c'>Competitive Insight:</strong> "+data.competitor_note+"</div></div>":"")+"<div style='text-align:center;padding:40px'><div style='font-size:22px;font-weight:700;margin-bottom:8px'>Ready to fix these gaps?</div><div style='font-size:14px;color:#6b7280;max-width:500px;margin:0 auto;line-height:1.6'>Every month these issues go unaddressed, competitors lock in AI citation positions.</div></div><div style='text-align:center;padding:24px;border-top:1px solid #e5e7eb'><span style='font-size:12px;color:#9ca3af'>Powered by <strong>STAR Culture</strong> | "+d+"</span></div></body></html>"
+    }
+
+    function App(){
+      var s1=useState("");var url=s1[0],setUrl=s1[1];
+      var s2=useState("");var name=s2[0],setName=s2[1];
+      var s3=useState("");var industry=s3[0],setInd=s3[1];
+      var s4=useState(false);var loading=s4[0],setLoad=s4[1];
+      var s5=useState("");var progress=s5[0],setProg=s5[1];
+      var s6=useState(null);var data=s6[0],setData=s6[1];
+      var s7=useState("");var error=s7[0],setErr=s7[1];
+      var s8=useState("overview");var tab=s8[0],setTab=s8[1];
+
+      function run(){
+        if(!url||!name||!industry){setErr("Please fill in all three fields.");return}
+        setErr("");setLoad(true);setData(null);setTab("overview");
+        var step=0;setProg(STEPS[0]);
+        var iv=setInterval(function(){step++;if(step<STEPS.length)setProg(STEPS[step])},4500);
+        var cu=url.indexOf("http")===0?url:"https://"+url;
+        fetch("/.netlify/functions/audit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url:cu,name:name,industry:industry})})
+        .then(function(r){return r.json()})
+        .then(function(r){clearInterval(iv);setLoad(false);if(r.error){setErr(r.error)}else if(r.overall_score!==undefined){setData(r)}else{setErr("Unexpected response. Try again.")}})
+        .catch(function(e){clearInterval(iv);setLoad(false);setErr("Connection error: "+e.message)})
+      }
+
+      function dl(){
+        if(!data)return;
+        var cu=url.indexOf("http")===0?url:"https://"+url;
+        var h=mkReport(data,cu,name,industry);
+        var w=window.open("","_blank");w.document.write(h);w.document.close();
+      }
+
+      function chips(fs){
+        return(<div style={{display:"flex",gap:6}}>
+          <span style={{fontSize:11,fontWeight:700,padding:"3px 10px",borderRadius:6,background:"rgba(34,197,94,.13)",color:"var(--success)"}}>{cnt(fs,"pass")} pass</span>
+          <span style={{fontSize:11,fontWeight:700,padding:"3px 10px",borderRadius:6,background:"rgba(239,68,68,.13)",color:"var(--danger)"}}>{cnt(fs,"fail")} fail</span>
+          <span style={{fontSize:11,fontWeight:700,padding:"3px 10px",borderRadius:6,background:"rgba(234,179,8,.13)",color:"var(--warn)"}}>{cnt(fs,"warning")} warn</span>
+        </div>)
+      }
+
+      var tbs=[{id:"overview",l:"Priority Fixes",c:"var(--danger)"},{id:"seo",l:data?"SEO ("+data.seo.score+")":"SEO",c:"var(--seo)"},{id:"aeo",l:data?"AEO ("+data.aeo.score+")":"AEO",c:"var(--aeo)"},{id:"geo",l:data?"GEO ("+data.geo.score+")":"GEO",c:"var(--geo)"}];
+
+      return(
+        <div>
+          <div style={{padding:"32px 24px 24px",textAlign:"center",background:"linear-gradient(180deg,rgba(59,130,246,.05) 0%,transparent 100%)"}}>
+            <div style={{fontSize:11,letterSpacing:3,textTransform:"uppercase",color:"var(--muted)",marginBottom:10,fontWeight:500}}>AI Search Visibility</div>
+            <h1 style={{fontSize:"clamp(26px,5vw,38px)",fontWeight:800,lineHeight:1.1,marginBottom:8,background:"linear-gradient(135deg,#3b82f6,#a855f7,#f97316)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundSize:"200% auto",animation:"gradientShift 6s ease infinite"}}>Website Audit Tool</h1>
+            <p style={{color:"var(--muted)",fontSize:14,maxWidth:500,margin:"0 auto"}}>Paste any URL for a full SEO, AEO and GEO diagnostic with downloadable PDF report</p>
+          </div>
+          <div className="ctn">
+            <div className="crd" style={{marginBottom:24}}>
+              <div style={{display:"grid",gap:14}}>
+                <div><label className="lbl">Website URL</label><input className="inp" type="text" placeholder="e.g. www.joesplumbing.com" value={url} onChange={function(e){setUrl(e.target.value)}}/></div>
+                <div className="g2" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+                  <div><label className="lbl">Business Name</label><input className="inp" type="text" placeholder="e.g. Joe's Plumbing" value={name} onChange={function(e){setName(e.target.value)}}/></div>
+                  <div><label className="lbl">Industry</label>
+                    <select className="inp" value={industry} onChange={function(e){setInd(e.target.value)}} style={{color:industry?"var(--text)":"rgba(139,143,163,.5)",cursor:"pointer"}}>
+                      <option value="">Select industry...</option>
+                      {IND.map(function(x){return <option key={x} value={x}>{x}</option>})}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <button className="btn1" onClick={run} disabled={loading}>{loading?"Analyzing...":"Run Full Audit \u2192"}</button>
+              {error&&<div className="err">{error}</div>}
+            </div>
+
+            {loading&&(<div className="crd" style={{textAlign:"center",padding:40}}><div className="spn"></div><div style={{fontSize:15,fontWeight:600,color:"var(--text)",marginBottom:6}}>{progress}</div><div style={{fontSize:12,color:"var(--muted)"}}>This typically takes 30-60 seconds</div><div className="shbar"><div className="shfill"></div></div></div>)}
+
+            {data&&(
+              <div style={{animation:"fadeIn .5s ease"}}>
+                <div className="crd"><div className="sgrid">
+                  <Ring score={data.overall_score} size={110} label="Overall"/>
+                  <Ring score={data.seo.score} size={100} color="var(--seo)" label="SEO"/>
+                  <Ring score={data.aeo.score} size={100} color="var(--aeo)" label="AEO"/>
+                  <Ring score={data.geo.score} size={100} color="var(--geo)" label="GEO"/>
+                </div></div>
+
+                <div className="crd" style={{display:"flex",alignItems:"center",gap:16,flexWrap:"wrap"}}>
+                  <div style={{flex:1,minWidth:250,fontSize:14,lineHeight:1.7,color:"var(--muted)"}}>{data.summary}</div>
+                  <button onClick={dl} style={{padding:"12px 24px",borderRadius:10,border:"1px solid var(--seo)",background:"rgba(59,130,246,.08)",color:"var(--seo)",fontSize:14,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}}>Download PDF Report</button>
+                </div>
+
+                <div className="tabs">{tbs.map(function(t){return <button key={t.id} className="tbtn" style={{background:tab===t.id?t.c:"transparent",color:tab===t.id?"#fff":"var(--muted)"}} onClick={function(){setTab(t.id)}}>{t.l}</button>})}</div>
+
+                <div className="crd">
+                  {tab==="overview"&&(<div style={{animation:"fadeIn .3s ease"}}>
+                    <h3 style={{fontSize:18,fontWeight:700,marginBottom:4,color:"var(--danger)"}}>Priority Fixes</h3>
+                    <p style={{fontSize:12,color:"var(--muted)",marginBottom:20}}>Ranked by impact - start at #1</p>
+                    <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                      {(data.priority_fixes||[]).map(function(f,i){return(
+                        <div key={i} className="pitm">
+                          <div style={{width:36,height:36,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",background:f.impact==="high"?"rgba(239,68,68,.13)":"rgba(251,191,36,.13)",color:f.impact==="high"?"var(--danger)":"var(--gold)",fontWeight:800,fontSize:16,flexShrink:0}}>{f.rank}</div>
+                          <div style={{flex:1}}>
+                            <div style={{fontSize:14,fontWeight:600,color:"var(--text)",lineHeight:1.4}}>{f.action}</div>
+                            <div style={{display:"flex",gap:8,marginTop:6}}>
+                              <span style={{fontSize:10,fontWeight:700,padding:"2px 8px",borderRadius:4,background:cc(f.category)+"22",color:cc(f.category)}}>{f.category}</span>
+                              <span style={{fontSize:10,fontWeight:600,padding:"2px 8px",borderRadius:4,background:"rgba(139,143,163,.08)",color:"var(--muted)"}}>Effort: {f.effort}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )})}
+                    </div>
+                    {data.competitor_note&&(<div style={{marginTop:20,padding:"14px 18px",borderRadius:12,background:"rgba(249,115,22,.04)",borderLeft:"3px solid var(--geo)"}}>
+                      <div style={{fontSize:11,fontWeight:700,color:"var(--geo)",textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>Competitive Insight</div>
+                      <div style={{fontSize:13,color:"var(--text)",lineHeight:1.6}}>{data.competitor_note}</div>
+                    </div>)}
+                  </div>)}
+
+                  {tab==="seo"&&(<div style={{animation:"fadeIn .3s ease"}}>
+                    <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:16,flexWrap:"wrap"}}><h3 style={{fontSize:18,fontWeight:700,color:"var(--seo)"}}>SEO Analysis</h3>{chips(data.seo.findings)}</div>
+                    <Findings findings={data.seo.findings} col="var(--seo)"/>
+                  </div>)}
+
+                  {tab==="aeo"&&(<div style={{animation:"fadeIn .3s ease"}}>
+                    <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:16,flexWrap:"wrap"}}><h3 style={{fontSize:18,fontWeight:700,color:"var(--aeo)"}}>AEO Analysis</h3>{chips(data.aeo.findings)}</div>
+                    <p style={{fontSize:12,color:"var(--muted)",marginBottom:16}}>Featured snippets, voice search, AI Overviews and direct answers</p>
+                    <Findings findings={data.aeo.findings} col="var(--aeo)"/>
+                  </div>)}
+
+                  {tab==="geo"&&(<div style={{animation:"fadeIn .3s ease"}}>
+                    <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:16,flexWrap:"wrap"}}><h3 style={{fontSize:18,fontWeight:700,color:"var(--geo)"}}>GEO Analysis</h3>{chips(data.geo.findings)}</div>
+                    <p style={{fontSize:12,color:"var(--muted)",marginBottom:16}}>ChatGPT, Perplexity, Claude, Gemini and AI platform visibility</p>
+                    <Findings findings={data.geo.findings} col="var(--geo)"/>
+                  </div>)}
+                </div>
+
+                <div style={{textAlign:"center",paddingTop:28,color:"var(--muted)",fontSize:11,letterSpacing:1}}>Powered by <span className="gtxt">STAR Culture</span></div>
+              </div>
+            )}
+          </div>
+        </div>
+      )
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+  </script>
+</body>
+</html>
